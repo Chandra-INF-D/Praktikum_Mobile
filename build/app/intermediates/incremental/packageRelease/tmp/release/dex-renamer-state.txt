@@ -1,0 +1,4 @@
+#Mon Jul 01 15:17:14 UTC 2024
+base.0=/home/user/myapp/AplikasiPengunjung/build/app/intermediates/dex/release/minifyReleaseWithR8/classes.dex
+renamed.0=classes.dex
+path.0=classes.dex

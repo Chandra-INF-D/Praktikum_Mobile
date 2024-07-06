@@ -1,9 +1,8 @@
-import 'package:app_user/pages/asd.dart';
 import 'package:flutter/material.dart';
-import 'package:app_user/pages/user_detail_page.dart' as detail;
-import 'package:app_user/pages/add_user_page.dart' as add;
 import 'package:app_user/models/user.dart';
-
+import 'package:app_user/pages/user_detail_page.dart';
+import 'package:app_user/pages/add_user_page.dart';
+import 'package:app_user/pages/asd.dart';
 
 void main() {
   runApp(MyApp());
@@ -16,7 +15,7 @@ class MyApp extends StatelessWidget {
       title: 'Kunjungan',
       theme: ThemeData(
         primarySwatch: Colors.teal,
-        scaffoldBackgroundColor: Colors.white, // Background color for scaffold
+        scaffoldBackgroundColor: Colors.white,
       ),
       home: UserListPage(),
     );
@@ -30,36 +29,34 @@ class UserListPage extends StatefulWidget {
 
 class _UserListPageState extends State<UserListPage> {
   final ApiService apiService = ApiService();
-  List<User> users = []; // List of users
+  List<User> users = [];
 
   @override
   void initState() {
     super.initState();
-    fetchUserList(); // Fetch initial user list when page loads
+    fetchUserList();
   }
 
   Future<void> fetchUserList() async {
     try {
       List<User> fetchedUsers = await apiService.fetchUsers();
       setState(() {
-        users = fetchedUsers; // Update state with fetched users
+        users = fetchedUsers;
       });
     } catch (e) {
       print('Error fetching users: $e');
     }
   }
 
-  // Function to add user to the list
   void addUserToList(User newUser) {
     setState(() {
-      users.add(newUser); // Add new user to the list
+      users.add(newUser);
     });
   }
 
-  // Function to remove user from the list
   void _removeUser(int index) {
     setState(() {
-      users.removeAt(index); // Remove user at the specified index
+      users.removeAt(index);
     });
   }
 
@@ -85,14 +82,14 @@ class _UserListPageState extends State<UserListPage> {
               trailing: IconButton(
                 icon: Icon(Icons.delete),
                 onPressed: () {
-                  _removeUser(index); // Call function to remove user
+                  _removeUser(index);
                 },
               ),
               onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => detail.UserDetailPage(userId: user.id),
+                    builder: (context) => UserDetailPage(user: user),
                   ),
                 );
               },
@@ -105,10 +102,8 @@ class _UserListPageState extends State<UserListPage> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => add.AddUserPage(
-                onUserAdded: addUserToList, // Pass callback function to AddUserPage
-                phone: '', // Provide required parameters
-                address: '', // Provide required parameters
+              builder: (context) => AddUserPage(
+                onUserAdded: addUserToList,
               ),
             ),
           );

@@ -3,14 +3,10 @@ import 'package:app_user/models/user.dart';
 
 class AddUserPage extends StatefulWidget {
   final Function(User) onUserAdded;
-  final String phone;
-  final String address;
 
   const AddUserPage({
     Key? key,
     required this.onUserAdded,
-    required this.phone,
-    required this.address,
   }) : super(key: key);
 
   @override
@@ -21,16 +17,28 @@ class _AddUserPageState extends State<AddUserPage> {
   final TextEditingController firstNameController = TextEditingController();
   final TextEditingController lastNameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController addressController = TextEditingController();
 
   void addUser() {
     String firstName = firstNameController.text;
     String lastName = lastNameController.text;
     String email = emailController.text;
+    String phone = phoneController.text;
+    String address = addressController.text;
 
-    String phone = widget.phone;
-    String address = widget.address;
+    if (firstName.isEmpty ||
+        lastName.isEmpty ||
+        email.isEmpty ||
+        phone.isEmpty ||
+        address.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please fill in all fields')),
+      );
+      return;
+    }
 
-    int id = 1;
+    int id = DateTime.now().millisecondsSinceEpoch; // Generate unique ID based on timestamp
     String avatarUrl = 'https://example.com/avatar.png';
 
     User newUser = User(
@@ -63,41 +71,62 @@ class _AddUserPageState extends State<AddUserPage> {
             colors: [Colors.teal, Colors.teal.shade900],
           ),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            TextField(
-              controller: firstNameController,
-              decoration: InputDecoration(
-                labelText: 'First Name',
-                filled: true,
-                fillColor: Colors.white,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              TextField(
+                controller: firstNameController,
+                decoration: InputDecoration(
+                  labelText: 'First Name',
+                  filled: true,
+                  fillColor: Colors.white,
+                ),
               ),
-            ),
-            SizedBox(height: 12.0),
-            TextField(
-              controller: lastNameController,
-              decoration: InputDecoration(
-                labelText: 'Last Name',
-                filled: true,
-                fillColor: Colors.white,
+              SizedBox(height: 12.0),
+              TextField(
+                controller: lastNameController,
+                decoration: InputDecoration(
+                  labelText: 'Last Name',
+                  filled: true,
+                  fillColor: Colors.white,
+                ),
               ),
-            ),
-            SizedBox(height: 12.0),
-            TextField(
-              controller: emailController,
-              decoration: InputDecoration(
-                labelText: 'Email',
-                filled: true,
-                fillColor: Colors.white,
+              SizedBox(height: 12.0),
+              TextField(
+                controller: emailController,
+                decoration: InputDecoration(
+                  labelText: 'Email',
+                  filled: true,
+                  fillColor: Colors.white,
+                ),
               ),
-            ),
-            SizedBox(height: 12.0),
-            ElevatedButton(
-              onPressed: addUser,
-              child: Text('Tambahkan'),
-            ),
-          ],
+              SizedBox(height: 12.0),
+              TextField(
+                controller: phoneController,
+                decoration: InputDecoration(
+                  labelText: 'Phone',
+                  filled: true,
+                  fillColor: Colors.white,
+                ),
+                keyboardType: TextInputType.phone,
+              ),
+              SizedBox(height: 12.0),
+              TextField(
+                controller: addressController,
+                decoration: InputDecoration(
+                  labelText: 'Address',
+                  filled: true,
+                  fillColor: Colors.white,
+                ),
+              ),
+              SizedBox(height: 12.0),
+              ElevatedButton(
+                onPressed: addUser,
+                child: Text('Tambahkan'),
+              ),
+            ],
+          ),
         ),
       ),
     );

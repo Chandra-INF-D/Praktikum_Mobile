@@ -1,4 +1,3 @@
-// lib/services/api_service.dart
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:app_user/models/user.dart';
@@ -26,7 +25,6 @@ class ApiService {
   }
 
   Future<http.Response> createUser(String name, String email) async {
-    print('Creating user with name: $name and email: $email');
     final response = await http.post(
       Uri.parse('$baseUrl/users'),
       headers: <String, String>{
@@ -37,7 +35,24 @@ class ApiService {
         'email': email,
       }),
     );
-    print('Response received');
     return response;
+  }
+
+  Future<void> updateUser(User user) async {
+    final response = await http.put(
+      Uri.parse('$baseUrl/users/${user.id}'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({
+        'first_name': user.firstName,
+        'last_name': user.lastName,
+        'email': user.email,
+        'phone': user.phone,
+        'address': user.address,
+      }),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to update user');
+    }
   }
 }

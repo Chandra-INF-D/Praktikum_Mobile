@@ -4,8 +4,8 @@ class User {
   final String lastName;
   final String email;
   final String avatar;
-  final String phone; // Tambahkan properti phone
-  final String address; // Tambahkan properti address
+  final String phone;
+  final String address;
 
   User({
     required this.id,
@@ -19,13 +19,13 @@ class User {
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      id: json['id'],
-      firstName: json['first_name'],
-      lastName: json['last_name'],
-      email: json['email'],
-      avatar: json['avatar'],
-      phone: json['phone'],
-      address: json['address'],
+      id: json['id'] ?? 0,
+      firstName: json['first_name'] ?? '',
+      lastName: json['last_name'] ?? '',
+      email: json['email'] ?? '',
+      avatar: json['avatar'] ?? '',
+      phone: json['phone'] ?? '',
+      address: json['address'] ?? '',
     );
   }
 }
