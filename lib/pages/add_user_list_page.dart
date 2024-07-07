@@ -1,221 +1,118 @@
 import 'package:flutter/material.dart';
-import 'package:table_calendar/table_calendar.dart';
 import 'package:app_user/models/user.dart';
-import 'package:app_user/services/api_service.dart';
 
-class UserDetailPage extends StatefulWidget {
-  final User user;
+class AddUserPage extends StatefulWidget {
+  final Function(User) onUserAdded;
 
-  UserDetailPage({required this.user});
+  const AddUserPage({
+    Key? key,
+    required this.onUserAdded,
+  }) : super(key: key);
 
   @override
-  _UserDetailPageState createState() => _UserDetailPageState();
+  _AddUserPageState createState() => _AddUserPageState();
 }
 
-class _UserDetailPageState extends State<UserDetailPage> {
-  final ApiService apiService = ApiService();
-
+class _AddUserPageState extends State<AddUserPage> {
   final TextEditingController firstNameController = TextEditingController();
   final TextEditingController lastNameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
 
-  CalendarFormat _calendarFormat = CalendarFormat.month;
-  DateTime _focusedDay = DateTime.now();
-  DateTime? _selectedDay;
+  void addUser() {
+    String firstName = firstNameController.text;
+    String lastName = lastNameController.text;
+    String email = emailController.text;
+    String phone = phoneController.text;
+    String address = addressController.text;
 
-  Map<DateTime, List<String>> _events = {};
+    int id = DateTime.now().millisecondsSinceEpoch; // Generate unique ID based on timestamp
+    String avatarUrl = 'https://example.com/avatar.png';
 
-  @override
-  void initState() {
-    super.initState();
-    firstNameController.text = widget.user.firstName;
-    lastNameController.text = widget.user.lastName;
-    emailController.text = widget.user.email;
-    phoneController.text = widget.user.phone;
-    addressController.text = widget.user.address;
-  }
+    User newUser = User(
+      id: id,
+      avatar: avatarUrl,
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
+      phone: phone,
+      address: address,
+    );
 
-  void _addEvent(String event) {
-    setState(() {
-      if (_events[_selectedDay] == null) {
-        _events[_selectedDay!] = [];
-      }
-      _events[_selectedDay]!.add(event);
-    });
-  }
+    widget.onUserAdded(newUser);
 
-  Future<void> _updateUser() async {
-    try {
-      User updatedUser = User(
-        id: widget.user.id,
-        avatar: widget.user.avatar,
-        firstName: firstNameController.text,
-        lastName: lastNameController.text,
-        email: emailController.text,
-        phone: phoneController.text,
-        address: addressController.text,
-      );
-
-      await apiService.updateUser(updatedUser);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('User updated successfully')),
-      );
-
-      setState(() {
-        widget.user.firstName = firstNameController.text;
-        widget.user.lastName = lastNameController.text;
-        widget.user.email = emailController.text;
-        widget.user.phone = phoneController.text;
-        widget.user.address = addressController.text;
-      });
-    } catch (e) {
-      print('Error updating user: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to update user')),
-      );
-    }
+    Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Detail Data Pengunjung'),
+        title: Text('Registrasi'),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: CircleAvatar(
-                  radius: 50,
-                  backgroundImage: NetworkImage(widget.user.avatar),
-                ),
-              ),
-              SizedBox(height: 16),
-              Center(
-                child: Text(
-                  '${widget.user.firstName} ${widget.user.lastName}',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              SizedBox(height: 8),
-              Center(
-                child: Text(
-                  widget.user.email,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey[600],
-                  ),
-                ),
-              ),
-              SizedBox(height: 24),
-              Divider(),
-              SizedBox(height: 16),
-              Text(
-                'Informasi Pribadi',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(height: 8),
-              TextField(
-                controller: firstNameController,
-                decoration: InputDecoration(
-                  labelText: 'First Name',
-                ),
-              ),
-              SizedBox(height: 8),
-              TextField(
-                controller: lastNameController,
-                decoration: InputDecoration(
-                  labelText: 'Last Name',
-                ),
-              ),
-              SizedBox(height: 8),
-              TextField(
-                controller: emailController,
-                decoration: InputDecoration(
-                  labelText: 'Email',
-                ),
-              ),
-              SizedBox(height: 8),
-              TextField(
-                controller: phoneController,
-                decoration: InputDecoration(
-                  labelText: 'Phone',
-                ),
-              ),
-              SizedBox(height: 8),
-              TextField(
-                controller: addressController,
-                decoration: InputDecoration(
-                  labelText: 'Address',
-                ),
-              ),
-              SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _updateUser,
-                child: Text('Simpan Perubahan'),
-              ),
-              SizedBox(height: 24),
-              Divider(),
-              SizedBox(height: 16),
-              Text(
-                'Event Kalender',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(height: 8),
-              TableCalendar(
-                firstDay: DateTime.utc(2023, 01, 01),
-                lastDay: DateTime.utc(2030, 12, 31),
-                focusedDay: _focusedDay,
-                calendarFormat: _calendarFormat,
-                selectedDayPredicate: (day) {
-                  return isSameDay(_selectedDay, day);
-                },
-                eventLoader: (day) {
-                  return _events[day] ?? [];
-                },
-                onDaySelected: (selectedDay, focusedDay) {
-                  setState(() {
-                    _selectedDay = selectedDay;
-                    _focusedDay = focusedDay;
-                  });
-                },
-                onPageChanged: (focusedDay) {
-                  _focusedDay = focusedDay;
-                },
-              ),
-              SizedBox(height: 8),
-              if (_selectedDay != null) ...[
-                TextField(
-                  decoration: InputDecoration(
-                    labelText: 'Tambah Event',
-                  ),
-                  onSubmitted: (value) {
-                    _addEvent(value);
-                  },
-                ),
-                SizedBox(height: 8),
-                ..._events[_selectedDay!]!.map((event) => ListTile(
-                      title: Text(event),
-                    )),
-              ],
-            ],
+      body: Container(
+        padding: EdgeInsets.all(16.0),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Colors.teal, Colors.teal.shade900],
           ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextField(
+              controller: firstNameController,
+              decoration: InputDecoration(
+                labelText: 'First Name',
+                filled: true,
+                fillColor: Colors.white,
+              ),
+            ),
+            SizedBox(height: 12.0),
+            TextField(
+              controller: lastNameController,
+              decoration: InputDecoration(
+                labelText: 'Last Name',
+                filled: true,
+                fillColor: Colors.white,
+              ),
+            ),
+            SizedBox(height: 12.0),
+            TextField(
+              controller: emailController,
+              decoration: InputDecoration(
+                labelText: 'Email',
+                filled: true,
+                fillColor: Colors.white,
+              ),
+            ),
+            SizedBox(height: 12.0),
+            TextField(
+              controller: phoneController,
+              decoration: InputDecoration(
+                labelText: 'Phone',
+                filled: true,
+                fillColor: Colors.white,
+              ),
+            ),
+            SizedBox(height: 12.0),
+            TextField(
+              controller: addressController,
+              decoration: InputDecoration(
+                labelText: 'Address',
+                filled: true,
+                fillColor: Colors.white,
+              ),
+            ),
+            SizedBox(height: 12.0),
+            ElevatedButton(
+              onPressed: addUser,
+              child: Text('Tambahkan'),
+            ),
+          ],
         ),
       ),
     );
